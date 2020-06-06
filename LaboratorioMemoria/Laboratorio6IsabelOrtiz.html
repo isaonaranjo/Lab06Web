@@ -1,0 +1,162 @@
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      function shuffleArray(array) {
+        for (var i = array.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var temp = array[i];
+          array[i] = array[j];
+          array[j] = temp;
+        }
+      }
+      let moves = 0;
+      let flippedPairs = 0;
+      const MyTitle = () => {
+        const style = {
+          fontSize: "20px"
+        };
+        return (
+          <div>
+            <h1>Isabel Ortiz Naranjo - Laboratorio 6</h1>
+          </div>
+        );
+      };
+      const Grid = () => {
+        const style = {
+          background: "url(Nubes.jpg)",
+          display: "grid",
+          gridTemplateColumns: "200px 200px 200px 200px",
+          justifyContent: "center",
+          gridColumnGap: "50px",
+          gridRowGap: "50px"
+        };
+        const titleStyle = {
+          fontFamily: "monospace",
+          fontSize: "30px",
+          textAlign: "center"
+        };
+        let cartas = [
+          "giraasol.png",
+          "gerbera.png",
+          "tulipan.png",
+          "rosa.png ",
+          "azul.png",
+          "bonitas.png",
+          "lindas.png",
+          "bonis.png",
+          "giraasol.png",
+          "gerbera.png",
+          "tulipan.png",
+          "rosa.png ",
+          "azul.png",
+          "bonitas.png",
+          "lindas.png",
+          "bonis.png"
+        ];
+        shuffleArray(cartas);
+        const [cardDataState, setCardDataState] = React.useState(
+          cartas.map((carta, i) => ({ imagen: carta, isFlipped: false, id: i }))
+        );
+        const [lastFlipped, setLastFlipped] = React.useState(null);
+        const [waiting, setWaiting] = React.useState(false);
+        const unflip = (index, index2) => {
+          const myCards = [...cardDataState];
+          myCards[index].isFlipped = false;
+          myCards[index2].isFlipped = false;
+          setCardDataState(myCards);
+          setWaiting(false);
+        };
+        const flip = index => {
+          if (!waiting && !cardDataState[index].isFlipped) {
+            const myCards = [...cardDataState];
+            myCards[index].isFlipped = true;
+            setCardDataState(myCards);
+            if (lastFlipped !== null) {
+              if (myCards[lastFlipped].imagen === myCards[index].imagen) {
+                moves = moves + 1;
+                flippedPairs = flippedPairs + 1;
+                console.log(moves);
+              } else {
+                moves = moves + 1;
+                setWaiting(true);
+                setTimeout(() => {
+                  unflip(lastFlipped, index);
+                }, 1000);
+              }
+              setLastFlipped(null);
+            } else {
+              setLastFlipped(index);
+            }
+          }
+        };
+        return (
+          <div>
+            <div>
+              <h1 style={titleStyle}>Isabel Ortiz Laboratorio 6</h1>
+              <h2 style={titleStyle}>Flores encontradas: {moves}</h2>
+              <div style={titleStyle}>
+                {flippedPairs === 8 ? <h1>Ganaste</h1> : null}
+              </div>
+            </div>
+            <div style={style}>
+              {cardDataState.map((carta, i) => (
+                <Card
+                  key={carta.id}
+                  frontFace={carta.imagen}
+                  setCardFlip={() => flip(i)}
+                  isFlipped={carta.isFlipped}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      };
+      const Card = ({ frontFace, isFlipped, setCardFlip }) => {
+        const duration = "50ms";
+        const style = {
+          //borderStyle: "solid",
+          position: "relative",
+          width: "100px",
+          height: "150px",
+          margin: "0px",
+          transformStyle: "preserve-3d",
+          transition: "transform 2s"
+        };
+        const backFace = "amor.png";
+        const frontStyle = {
+          width: "100px",
+          height: "150px",
+          position: "absolute",
+          backfaceVisibility: "hidden",
+          transform: isFlipped ? "rotateY(0deg)" : "rotateY(90deg)",
+          transition: `transform ${duration} linear`,
+          transitionDelay: isFlipped ? duration : "0s"
+        };
+        const backStyle = {
+          width: "100px",
+          height: "150px",
+          position: "absolute",
+          backfaceVisibility: "hidden",
+          transform: isFlipped ? "rotateY(90deg)" : "rotateY(0deg)",
+          transition: `transform ${duration} linear`,
+          transitionDelay: isFlipped ? "0s" : duration
+        };
+        return (
+          <div onClick={setCardFlip} style={style}>
+            <img src={frontFace} style={frontStyle}></img>
+            <img src={backFace} style={backStyle}></img>
+          </div>
+        );
+      };
+      ReactDOM.render(<Grid />, document.getElementById("root"));
+    </script>
+  </body>
+</html>
